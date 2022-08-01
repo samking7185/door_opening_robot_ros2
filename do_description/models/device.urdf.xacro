@@ -1,0 +1,215 @@
+<?xml version="1.0" ?>
+<robot name="device" xmlns:xacro="https://www.ros.org/wiki/xacro" >
+
+    <xacro:property name="PI" value="3.1415926535897931"/>
+    <xacro:property name="location_x" value="0.25" />
+    <xacro:property name="location_y" value="0" />
+    <xacro:property name="location_z" value="0.5" />
+
+    <xacro:property name="bar_x" value="0.02" />
+    <xacro:property name="bar_y" value="0.2" />
+    <xacro:property name="bar_z" value="1.05" />
+    <xacro:property name="bar_m" value="0.5" />
+
+    <xacro:property name="vslider_x" value="0.02" />
+    <xacro:property name="vslider_y" value="0.5" />
+    <xacro:property name="vslider_z" value="0.05" />
+    <xacro:property name="vslider_m" value="0.2" />
+
+    <xacro:property name="hslider_x" value="0.02" />
+    <xacro:property name="hslider_y" value="0.05" />
+    <xacro:property name="hslider_z" value="0.05" />
+    <xacro:property name="hslider_m" value="0.1" />
+
+    <xacro:property name="finger_x" value="0.1" />
+    <xacro:property name="finger_y" value="0.02" />
+    <xacro:property name="finger_z" value="0.02" />
+    <xacro:property name="finger_m" value="0.01" />
+
+    <xacro:property name="tip_x" value="0.01" />
+    <xacro:property name="tip_y" value="0.02" />
+    <xacro:property name="tip_z" value="0.06" />
+    <xacro:property name="tip_m" value="0.01" />
+
+  <!-- Define intertial property macros  -->
+    <xacro:macro name="box_inertia" params="m w h d">
+        <inertial>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 ${pi/2}"/>
+        <mass value="${m}"/>
+        <inertia ixx="${(m/12) * (h*h + d*d)}" ixy="0.0" ixz="0.0" iyy="${(m/12) * (w*w + d*d)}" iyz="0.0" izz="${(m/12) * (w*w + h*h)}"/>
+        </inertial>
+    </xacro:macro>
+
+    <xacro:macro name="operate_device_macro" params="parent robotname">
+
+    <!-- Define the center of the main robot chassis projected on the ground -->	
+    <!-- <link name="base_footprint"/> -->
+
+    <!-- The base footprint of the robot is located underneath the chassis -->
+      <joint name="joint_support_bar" type="fixed">
+        <origin xyz="${location_x} ${location_y} ${location_z}" rpy="0 0 0"/>
+        <parent link="${parent}"/>
+        <child link="base_link_bar"/>
+      </joint>
+
+    <link name="base_link_bar">
+    <visual>
+        <origin xyz="${bar_x/2} 0 ${bar_z/2}" rpy="0 0 0" />
+        <geometry>
+        <box size="${bar_x} ${bar_y} ${bar_z}"/>
+        </geometry>
+        <material name="Gray">
+            <color rgba="${205/255} ${205/255} ${205/255} 1.0"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="${bar_x/2} 0 ${bar_z/2}" rpy="0 0 0" />
+        <geometry>
+        <box size="${bar_x} ${bar_y} ${bar_z}"/>
+        </geometry>
+    </collision>
+    <xacro:box_inertia m="${bar_m}" w="${bar_y}" d="${bar_x}" h="${bar_z}"/>
+
+    </link>
+
+    <joint name="joint_bar_vslider" type="prismatic">
+        <origin xyz="${bar_x} 0 0" rpy="0 0 0"/>
+        <parent link="base_link_bar"/>
+        <child link="link_vslider"/>
+        <axis xyz="0 0 1"/>
+        <limit upper="${bar_z-0.05}" lower="0.05" effort="1000.0" velocity="0.1"/>
+        <dynamics damping="0" friction="2.0"/>
+    </joint>
+    <link name="link_vslider">
+    <visual>
+        <origin xyz="${vslider_x/2} 0 0" rpy="0 0 0" />
+        <geometry>
+        <box size="${vslider_x} ${vslider_y} ${vslider_z}"/>
+        </geometry>
+        <material name="Gray">
+            <color rgba="${205/255} ${205/255} ${205/255} 1.0"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="${vslider_x/2} 0 0" rpy="0 0 0" />
+        <geometry>
+        <box size="${vslider_x} ${vslider_y} ${vslider_z}"/>
+        </geometry>
+    </collision>
+    <xacro:box_inertia m="${vslider_m}" w="${vslider_y}" d="${vslider_x}" h="${vslider_z}"/>
+
+    </link>
+
+    <joint name="joint_slider_slider" type="prismatic">
+        <origin xyz="${vslider_x} 0 0" rpy="0 0 0"/>
+        <parent link="link_vslider"/>
+        <child link="link_hslider"/>
+        <axis xyz="0 1 0"/>
+        <limit upper="${vslider_y/2}" lower="-${vslider_y/2}" effort="1000.0" velocity="0.1"/>
+        <dynamics damping="0" friction="2.0"/>
+    </joint>
+    <link name="link_hslider">
+    <visual>
+        <origin xyz="${hslider_x/2} 0 0" rpy="0 0 0" />
+        <geometry>
+        <box size="${hslider_x} ${hslider_y} ${hslider_z}"/>
+        </geometry>
+        <material name="Blue">
+            <color rgba="${0/255} ${0/255} ${255/255} 1.0"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="${hslider_x/2} 0 0" rpy="0 0 0" />
+        <geometry>
+        <box size="${hslider_x} ${hslider_y} ${hslider_z}"/>
+        </geometry>
+    </collision>
+    <xacro:box_inertia m="${hslider_m}" w="${hslider_y}" d="${hslider_x}" h="${hslider_z}"/>
+
+    </link>
+
+    <joint name="joint_slider_finger" type="fixed">
+        <origin xyz="${hslider_x} 0 0" rpy="0 0 0"/>
+        <parent link="link_hslider"/>
+        <child link="link_finger"/>
+    </joint>
+
+    <link name="link_finger">
+
+    <visual>
+        <origin xyz="${finger_x/2} 0 0" rpy="0 0 0" />
+        <geometry>
+            <box size="${finger_x} ${finger_y} ${finger_z}"/>
+        </geometry>
+        <material name="Blue">
+            <color rgba="${0/255} ${0/255} ${255/255} 1.0"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="${finger_x/2} 0 0" rpy="0 0 0" />
+        <geometry>
+            <box size="${finger_x} ${finger_y} ${finger_z}"/>
+        </geometry>
+    </collision>
+    <xacro:box_inertia m="${finger_m}" w="${finger_y}" d="${finger_x}" h="${finger_z}"/>
+
+    </link>
+
+    <joint name="joint_finger_tip" type="fixed">
+        <origin xyz="${finger_x} 0 0" rpy="0 0 0"/>
+        <parent link="link_finger"/>
+        <child link="link_tip"/>
+    </joint>
+    <link name="link_tip">
+    <visual>
+        <origin xyz="${tip_x/2} 0 -0.02" rpy="0 0 0" />
+        <geometry>
+        <box size="${tip_x} ${tip_y} ${tip_z}"/>
+        </geometry>
+        <material name="Blue">
+            <color rgba="${0/255} ${0/255} ${255/255} 1.0"/>
+        </material>
+    </visual>
+    <collision>
+        <origin xyz="${tip_x/2} 0 -0.02" rpy="0 0 0" />
+        <geometry>
+        <box size="${tip_x} ${tip_y} ${tip_z}"/>
+        </geometry>
+    </collision>
+    <xacro:box_inertia m="${tip_m}" w="${tip_y}" d="${tip_x}" h="${tip_z}"/>
+
+    </link>
+
+    <transmission name="vertical_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_bar_vslider">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="vertical_motor">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    </transmission>
+
+    <transmission name="horizontal_trans">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="joint_slider_slider">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="horizontal_motor">
+        <hardwareInterface>hardware_interface/EffortJointInterface</hardwareInterface>
+        <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+    </transmission>
+
+
+
+    <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+        <robotNamespace>/mobile_robot</robotNamespace>
+        <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+        <legacyModeNS>true</legacyModeNS>
+    </plugin>
+    </gazebo>
+    </xacro:macro>
+</robot>
