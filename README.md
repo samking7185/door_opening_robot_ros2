@@ -8,6 +8,7 @@ This package is programmed with ROS2 Galactic. To install please follow official
 https://docs.ros.org/en/galactic/Installation/Ubuntu-Install-Debians.html
 
 It also uses Gazebo Multi-Robot Simulator verion 11.10.2
+
 http://gazebosim.org
 
 ### do_bringup
